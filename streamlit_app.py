@@ -54,20 +54,31 @@ df_map = pd.DataFrame({
 # --------------------------
 st.subheader(f"🌍 해수면·기온 변화 지도 ({year}년 기준)")
 
-st.pydeck_chart(pdk.Deck(
-    map_style="mapbox://styles/mapbox/light-v9",
-    initial_view_state=pdk.ViewState(latitude=0, longitude=0, zoom=1),
-    layers=[
-        pdk.Layer(
-            "HeatmapLayer",
-            data=df_map,
-            get_position=["lon", "lat"],
-            get_weight="anomaly",
-            radiusPixels=30,
-            opacity=0.6
-        )
-    ]
-))
+heat_layer = pdk.Layer(
+    "HeatmapLayer",
+    data=df_map,
+    get_position=["lon", "lat"],
+    get_weight="anomaly",
+    radiusPixels=20,
+    intensity=1,
+    threshold=0.01,
+    aggregation="MEAN"
+)
+
+view = pdk.ViewState(
+    latitude=0,
+    longitude=0,
+    zoom=1.5,
+    pitch=30
+)
+
+r = pdk.Deck(
+    layers=[heat_layer],
+    initial_view_state=view,
+    map_style="mapbox://styles/mapbox/light-v9"
+)
+
+st.pydeck_chart(r)
 
 # --------------------------
 # 본론 1: 데이터 분석
